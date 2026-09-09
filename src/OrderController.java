@@ -32,13 +32,21 @@ public class OrderController {
      *  none exists. TODO: complete with Copilot. */
     public Order getOrderById(long id) {
         // TODO: look up id in `store` and return it (or null).
-        throw new UnsupportedOperationException("TODO: complete via AI");
+        return store.get(id);
     }
 
     /** POST /orders -- create a new order, assign it the next id,
      *  store it, and return it. TODO: complete with Copilot. */
     public Order createOrder(String item, int qty) {
         // TODO: validate item/qty, allocate nextId, put in store, return.
-        throw new UnsupportedOperationException("TODO: complete via AI");
+        if (item == null || item.trim().isEmpty()) {
+            throw new IllegalArgumentException("Item must not be null or empty");
+        }
+        if (qty <= 0) {
+            throw new IllegalArgumentException("Quantity must be a positive integer");
+        }
+        Order order = new Order(nextId++, item, qty);
+        store.put(order.id(), order);
+        return order;
     }
 }
