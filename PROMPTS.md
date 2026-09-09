@@ -2,21 +2,21 @@
 
 ## CS5013 Module 3 – AI for Code Generation and Autocompletion
 
-This file records the AI interactions, generated code observations, commit-message assistance, PR-description work, and reflection for the Module 3 hands-on exercise.
+This document records the AI-assisted work performed for the Module 3 hands-on exercise.
 
 ---
 
 ## Part A – Record and Autocompletion
 
-### 1. Initial ghost text in `UserDTO.java`
+### Initial Copilot suggestion
 
-After leaving the empty record header as:
+In `UserDTO.java`, after starting the record with:
 
 ```java
 public record UserDTO(
 ```
 
-Copilot first suggested:
+Copilot initially suggested:
 
 ```java
 public record UserDTO(
@@ -36,13 +36,22 @@ public record UserDTO(
 }
 ```
 
-### Observation
+### Evaluation
 
-This suggestion did not match the actual `User.java` class. The actual fields are `long id`, `String name`, `String email`, and `boolean active`. The suggestion therefore contained hallucinated fields and methods such as `getUsername()`, `getFirstName()`, and `getLastName()`.
+This suggestion did not match the actual `User.java` implementation. The project contains the fields:
 
-I did not blindly trust this suggestion.
+```text
+long id
+String name
+String email
+boolean active
+```
 
-### 2. Ghost text after opening `User.java`
+The initial suggestion therefore contained fields and getter methods that did not exist in the project, such as `getUsername()`, `getFirstName()`, and `getLastName()`.
+
+This demonstrated why ghost text should be read and compared with the existing code before accepting it.
+
+### Suggestion after opening `User.java`
 
 After opening `User.java` in a second tab and retriggering completion, Copilot produced:
 
@@ -58,7 +67,7 @@ boolean active
 }
 ```
 
-This matched the actual fields and accessor methods in `User.java`, so I accepted it.
+This matched the actual fields and accessor methods in `User.java`, so it was accepted.
 
 ---
 
@@ -72,9 +81,19 @@ public static UserDTO fromUser(User user) {
 }
 ```
 
+A small `main` method was also added:
+
+```java
+public static void main(String[] args) {
+    User user = new User(1, "Alice", "alice@example.com", true);
+    UserDTO dto = fromUser(user);
+    System.out.println(dto);
+}
+```
+
 ### Verification
 
-Compilation:
+Compilation command:
 
 ```text
 javac -d build src/User.java src/UserDTO.java
@@ -82,7 +101,7 @@ javac -d build src/User.java src/UserDTO.java
 
 Compilation succeeded.
 
-Running:
+Execution command:
 
 ```text
 java -cp build UserDTO
@@ -94,9 +113,7 @@ Output:
 UserDTO[id=1, name=Alice, email=alice@example.com, active=true]
 ```
 
-There were no hallucinated-field or missing-method compilation errors in the accepted version.
-
-A small `main` method was also added to construct a `User`, call `fromUser`, and print the resulting `UserDTO`.
+No hallucinated-field or missing-method compilation error occurred in the accepted version.
 
 ---
 
@@ -110,7 +127,7 @@ Copilot suggested:
 return store.get(id);
 ```
 
-This was consistent with the existing `Map<Long, Order> store` and the method's documented behavior.
+This was consistent with the existing `Map<Long, Order> store` and the documented behavior of returning the matching order or `null`.
 
 ### `createOrder`
 
@@ -128,7 +145,7 @@ store.put(order.id(), order);
 return order;
 ```
 
-This was consistent with the existing `Order` record, `store`, and `nextId` fields.
+This was consistent with the existing `Order` record, `store`, and `nextId`.
 
 ### Testing
 
@@ -138,18 +155,18 @@ The provided JUnit tests were run using:
 make test
 ```
 
-The tests passed:
+All four tests passed:
 
 ```text
-listOrdersReturnsSeedOnStartup()          OK
-getOrderByIdReturnsSeedForIdOne()        OK
-createOrderAddsAndReturnsOrder()         OK
-getOrderByIdReturnsNullForMissing()      OK
+listOrdersReturnsSeedOnStartup()
+getOrderByIdReturnsSeedForIdOne()
+createOrderAddsAndReturnsOrder()
+getOrderByIdReturnsNullForMissing()
 ```
 
 Result: **4 tests successful, 0 failed.**
 
-An initial attempt from Windows Command Prompt failed because the Makefile uses Unix-style commands such as `mkdir -p`. Running the same command from Git Bash worked successfully.
+An initial attempt from Windows Command Prompt failed because the Makefile uses Unix-style commands such as `mkdir -p`. Running it from Git Bash succeeded.
 
 ---
 
@@ -169,33 +186,69 @@ Implement order retrieval and creation in OrderController; add UserDTO fields an
 Completed the missing controller methods and added the UserDTO mapping required for the hands-on exercises. I made these changes to test AI-generated Java boilerplate and verify the implementation with the provided JUnit tests.
 ```
 
-The commit was created as part of the feature-branch workflow.
+The changes were committed on the feature branch:
+
+```text
+feat/m3-hands-on
+```
 
 ---
 
-## PR Description / Summary
+## Pull Request – AI-Generated Summary
 
-GitHub Copilot's PR Summary feature was not available on my account. Therefore, I did not claim that an AI-generated PR summary had been produced.
+Copilot Chat was asked to review the actual project changes and draft a pull request summary. It inspected the branch, relevant source files and tests, and ran the project's `make test` command.
 
-Instead, I manually drafted the PR description.
+### Original Copilot-generated PR summary
 
-### Final PR description
+```markdown
+## Summary
+
+- Completed the missing order retrieval and creation behavior in OrderController.java.
+- Added the DTO mapping in UserDTO.java to convert a `User` into a `UserDTO`.
+- Documented the AI-assisted workflow and verification notes in PROMPTS.md.
+
+## Main implementation details
+
+- Implemented `getOrderById(long)` to return the matching order from the in-memory store, or `null` when no order exists.
+- Implemented `createOrder(String, int)` with validation for:
+  - non-empty item names
+  - positive quantities
+- Added the next-ID allocation and storage logic so new orders are persisted in the controller’s map and returned to the caller.
+- Added `UserDTO.fromUser(User)` to map the user’s `id`, `name`, `email`, and `active` fields into the DTO.
+- Included a simple `main` method in UserDTO.java to demonstrate the DTO conversion output.
+
+## Testing / verification
+
+- Verified the exercise with the project’s Java test workflow using `make test`.
+- The project notes confirm the provided JUnit tests in OrderControllerTest.java pass:
+  - `listOrdersReturnsSeedOnStartup`
+  - `getOrderByIdReturnsSeedForIdOne`
+  - `getOrderByIdReturnsNullForMissing`
+  - `createOrderAddsAndReturnsOrder`
+
+## Purpose
+
+This change completes the Module 3 hands-on exercise by implementing the required Java logic and validating the generated code against the project’s seeded data and test suite. The goal is to demonstrate AI-assisted development in a realistic codebase while confirming the generated implementation matches the actual domain model and behavior.
+```
+
+### Edited PR summary used in the pull request
 
 ```markdown
 ## Summary
 
 - Completed `getOrderById` and `createOrder` in `OrderController`.
-- Added the `UserDTO` record fields and `fromUser` mapper.
-- Added a small `main` method to verify the `UserDTO` mapping.
-- Verified the implementation with the provided JUnit tests.
+- Added `UserDTO.fromUser(User)` to map `id`, `name`, `email`, and `active`.
+- Added a small `main` method to demonstrate the DTO conversion.
+- Documented the AI-assisted development process in `PROMPTS.md`.
+
+## Testing
+
+- Ran the provided test suite using `make test`.
+- All four JUnit tests passed successfully.
 
 ## Purpose
 
-I made these changes to complete the Module 3 hands-on exercises, evaluate AI-generated Java boilerplate, and verify the generated implementation through compilation and tests.
-
-## Notes
-
-GitHub Copilot's PR Summary feature was not available on my account, so this PR description was manually drafted instead.
+These changes complete the Module 3 hands-on exercise. I made these changes to evaluate how accurately AI can generate Java boilerplate when given the correct project context, and I verified the generated code through compilation and the provided tests.
 ```
 
 ---
@@ -215,26 +268,34 @@ The prefix must be one of:
 feat, fix, chore, docs, refactor
 ```
 
-### Copilot suggestion
+### Copilot response
 
 ```text
+## Suggested branch name
+
 feat/close-account-permanently
+
+This matches the required format: prefix/short-kebab-slug.
 ```
 
 ### Evaluation
 
-I agree with the suggestion. It follows the required `prefix/short-kebab-slug` format, uses an allowed `feat` prefix, and clearly describes the requested feature.
+I agree with the suggestion because it follows the required format, uses an allowed `feat` prefix, and clearly describes the requested feature.
 
-I did not create this branch because Part E only required evaluating the suggested branch name.
+The branch name was evaluated only and was not created because Part E required a suggestion and evaluation.
 
 ---
 
 ## Reflection
 
-AI was useful for generating repetitive Java boilerplate and filling in straightforward implementations. After the relevant context from `User.java` was available, Copilot correctly inferred the `UserDTO` fields and generated the mapper using the existing getter methods. It also correctly completed the simple `getOrderById` lookup and the `createOrder` logic in `OrderController`.
+AI was useful for generating repetitive Java boilerplate and completing straightforward methods. Once `User.java` was available as context, Copilot correctly inferred the fields needed for `UserDTO` and generated the corresponding mapper. It also correctly completed the order lookup and order creation logic in `OrderController`.
 
-However, the first `UserDTO` completion showed why AI-generated code must be reviewed before accepting it. Without the context of `User.java`, Copilot suggested fields such as `username`, `firstName`, and `lastName`, along with getter methods that did not exist in the project. The suggestion looked plausible but was incorrect for this codebase.
+The initial `UserDTO` suggestion demonstrated an important limitation. It suggested plausible but nonexistent fields and methods such as `username`, `firstName`, `lastName`, `getUsername()`, `getFirstName()`, and `getLastName()`. This showed that AI-generated code can look reasonable while still being inconsistent with the actual project.
 
-The main lesson from the exercise is to treat AI suggestions as drafts rather than automatically correct code. I checked the generated code against the existing classes, compiled it, and ran the tests before considering the implementation complete. The same principle applied to the AI-generated commit message: I reviewed it and added my own explanation of why the changes were made.
+I therefore checked the generated code against the existing source files and verified it through compilation and tests. The provided JUnit tests confirmed that all four controller tests passed.
 
-For the PR summary, the GitHub Copilot feature was unavailable on my account, so I documented that limitation instead of presenting a manually written summary as AI-generated.
+The AI-generated commit message was reviewed rather than accepted without modification. I kept the useful subject and added my own explanation of why the changes were made.
+
+For the PR summary, Copilot Chat was used to inspect the actual project and generate a summary based on the branch contents and test results. I then edited the generated summary to make it more concise and to include my own explanation of the purpose of the changes.
+
+Overall, the exercise reinforced that AI assistance should be treated as a drafting aid rather than automatically correct output: read the suggestion, compare it with the existing code, compile it, and test it before relying on it.
